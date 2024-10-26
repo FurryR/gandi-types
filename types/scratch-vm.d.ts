@@ -372,6 +372,7 @@ declare namespace VM {
     id: string;
     name: string;
     isCloud: boolean;
+    targetId: string; // TODO: worst practice
     toXML(isLocal?: boolean): string;
   }
 

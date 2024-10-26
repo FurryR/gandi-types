@@ -1,5 +1,5 @@
 {
-  "name": "@turbowarp/types",
+  "name": "gandi-types",
   "version": "0.0.12",
   "description": "Type definitions for the Scratch VM and editor",
   "keywords": [
