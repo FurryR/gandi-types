@@ -4,19 +4,19 @@
 declare namespace ScratchStorage {
   enum DataFormat {
     // TW
-    TTF = 'ttf',
-    OTF = 'otf',
-    WOFF = 'woff',
-    WOFF2 = 'woff2',
+    TTF = "ttf",
+    OTF = "otf",
+    WOFF = "woff",
+    WOFF2 = "woff2",
 
-    JPG = 'jpg',
-    JSON = 'json',
-    MP3 = 'mp3',
-    PNG = 'png',
-    SB2 = 'sb2',
-    SB3 = 'sb3',
-    SVG = 'svg',
-    WAV = 'wav'
+    JPG = "jpg",
+    JSON = "json",
+    MP3 = "mp3",
+    PNG = "png",
+    SB2 = "sb2",
+    SB3 = "sb3",
+    SVG = "svg",
+    WAV = "wav",
   }
 
   interface AssetType {
@@ -37,7 +37,16 @@ declare namespace ScratchStorage {
   }
 
   class Asset {
-    constructor(assetType: AssetType, assetId: string, dataFormat: DataFormat | null, data: ArrayBuffer, generateId?: boolean);
+    // Gandi
+    data: Uint8Array;
+
+    constructor(
+      assetType: AssetType,
+      assetId: string,
+      dataFormat: DataFormat | null,
+      data: ArrayBuffer,
+      generateId?: boolean
+    );
 
     assetType: AssetType;
 
@@ -48,8 +57,16 @@ declare namespace ScratchStorage {
      */
     assetId: string;
 
-    setData(data: ArrayBuffer, dataFormat: DataFormat, generateId?: boolean): void;
-    encodeTextData(text: string, dataFormat: DataFormat, generateId?: boolean): void;
+    setData(
+      data: ArrayBuffer,
+      dataFormat: DataFormat,
+      generateId?: boolean
+    ): void;
+    encodeTextData(
+      text: string,
+      dataFormat: DataFormat,
+      generateId?: boolean
+    ): void;
 
     decodeText(): string;
     encodeDataURI(contentType?: string): string;
@@ -63,8 +80,17 @@ declare namespace ScratchStorage {
   type UrlFunction = (asset: Asset) => string;
 
   interface Helper {
-    load(assetType: AssetType, assetId: string, dataFormat: DataFormat): Promise<Asset>;
-    store(assetType: AssetType, dataFormat: DataFormat, data: ArrayBuffer, assetId: string): Promise<unknown>;
+    load(
+      assetType: AssetType,
+      assetId: string,
+      dataFormat: DataFormat
+    ): Promise<Asset>;
+    store(
+      assetType: AssetType,
+      dataFormat: DataFormat,
+      data: ArrayBuffer,
+      assetId: string
+    ): Promise<unknown>;
   }
 }
 
@@ -81,21 +107,55 @@ declare class ScratchStorage {
    */
   get(assetId: string): ScratchStorage.Asset | null;
 
-  cache(assetType: ScratchStorage.AssetType, dataFormat: ScratchStorage.DataFormat, data: ArrayBuffer, assetId: string): string;
+  cache(
+    assetType: ScratchStorage.AssetType,
+    dataFormat: ScratchStorage.DataFormat,
+    data: ArrayBuffer,
+    assetId: string
+  ): string;
 
-  load(assetType: ScratchStorage.AssetType, assetId: string, dataFormat: ScratchStorage.DataFormat): Promise<ScratchStorage.Asset | null>;
+  load(
+    assetType: ScratchStorage.AssetType,
+    assetId: string,
+    dataFormat: ScratchStorage.DataFormat
+  ): Promise<ScratchStorage.Asset | null>;
 
-  store(assetType: ScratchStorage.Asset, dataFormat: ScratchStorage.DataFormat, data: ArrayBuffer, assetId: string): Promise<unknown>;
+  store(
+    assetType: ScratchStorage.Asset,
+    dataFormat: ScratchStorage.DataFormat,
+    data: ArrayBuffer,
+    assetId: string
+  ): Promise<unknown>;
 
-  createAsset(assetType: ScratchStorage.AssetType, dataFormat: ScratchStorage.DataFormat, data: ArrayBuffer, assetId: null, generateId: true): ScratchStorage.Asset;
-  createAsset(assetType: ScratchStorage.AssetType, dataFormat: ScratchStorage.DataFormat, data: ArrayBuffer, assetId: string, generateId?: boolean): ScratchStorage.Asset;
+  createAsset(
+    assetType: ScratchStorage.AssetType,
+    dataFormat: ScratchStorage.DataFormat,
+    data: ArrayBuffer,
+    assetId: null,
+    generateId: true
+  ): ScratchStorage.Asset;
+  createAsset(
+    assetType: ScratchStorage.AssetType,
+    dataFormat: ScratchStorage.DataFormat,
+    data: ArrayBuffer,
+    assetId: string,
+    generateId?: boolean
+  ): ScratchStorage.Asset;
 
-  addWebStore(types: ScratchStorage.AssetType[], getFunction: ScratchStorage.UrlFunction, createFunction?: ScratchStorage.UrlFunction, updateFunction?: ScratchStorage.UrlFunction): void;
+  addWebStore(
+    types: ScratchStorage.AssetType[],
+    getFunction: ScratchStorage.UrlFunction,
+    createFunction?: ScratchStorage.UrlFunction,
+    updateFunction?: ScratchStorage.UrlFunction
+  ): void;
 
   /**
    * @deprecated Use addWebStore instead.
    */
-  addWebSource(types: ScratchStorage.AssetType[], getFunction: ScratchStorage.UrlFunction): void;
+  addWebSource(
+    types: ScratchStorage.AssetType[],
+    getFunction: ScratchStorage.UrlFunction
+  ): void;
 }
 
 /**

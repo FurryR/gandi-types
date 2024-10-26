@@ -22,10 +22,15 @@ declare namespace JSZip {
   interface StreamHelper<T extends keyof OutputTypes> {
     resume(): void;
     pause(): void;
-    on(event: 'data', callback: (data: OutputTypes[T], metadata: ProgressMetadata) => void): void;
-    on(event: 'end', callback: () => void): void;
-    on(event: 'error', callback: (error: Error) => void): void;
-    accumulate(updateCallback?: (metadata: ProgressMetadata) => void): Promise<OutputTypes[T]>;
+    on(
+      event: "data",
+      callback: (data: OutputTypes[T], metadata: ProgressMetadata) => void
+    ): void;
+    on(event: "end", callback: () => void): void;
+    on(event: "error", callback: (error: Error) => void): void;
+    accumulate(
+      updateCallback?: (metadata: ProgressMetadata) => void
+    ): Promise<OutputTypes[T]>;
   }
 }
 

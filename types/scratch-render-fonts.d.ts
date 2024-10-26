@@ -3,13 +3,13 @@
 
 declare namespace ScratchRenderFonts {
   const enum Font {
-    SansSerif = 'Sans Serif',
-    Serif = 'Serif',
-    Handwriting = 'Handwriting',
-    Marker = 'Marker',
-    Curly = 'Curly',
-    Pixel = 'Pixel',
-    Scratch = 'Scratch'
+    SansSerif = "Sans Serif",
+    Serif = "Serif",
+    Handwriting = "Handwriting",
+    Marker = "Marker",
+    Curly = "Curly",
+    Pixel = "Pixel",
+    Scratch = "Scratch",
   }
 }
 

@@ -42,28 +42,34 @@ declare namespace AudioEngine {
   }
 
   interface PitchEffect extends AbstractEffect {
-    get name(): 'pitch';
+    get name(): "pitch";
     ratio: number;
     getRatio(val: number): number;
     updatePlayer(soundPlayer: SoundPlayer): void;
-    updatePlayers(soundPlayers: Record<string, SoundPlayer> | SoundPlayer[]): void;
+    updatePlayers(
+      soundPlayers: Record<string, SoundPlayer> | SoundPlayer[]
+    ): void;
   }
 
   interface PanEffect extends AbstractEffect {
-    get name(): 'pan';
+    get name(): "pan";
     leftGain: GainNode;
     rightGain: GainNode;
     channelMerger: ChannelMergerNode;
   }
 
   interface VolumeEffect extends AbstractEffect {
-    get name(): 'volume';
+    get name(): "volume";
   }
 
   type Effect = PitchEffect | PanEffect | VolumeEffect;
 
   interface EffectConstructor {
-    new(audioEngine: AudioEngine, soundPlayer: SoundPlayer, lastEffect: Effect | null): Effect;
+    new (
+      audioEngine: AudioEngine,
+      soundPlayer: SoundPlayer,
+      lastEffect: Effect | null
+    ): Effect;
   }
 
   interface EffectChain {
@@ -144,14 +150,14 @@ declare namespace AudioEngine {
     playSound(target: Target, soundId: string): Promise<void>;
     setEffects(target: Target): void;
     stop(target: Target, soundId: string): void;
-    stopAllSounds(target: Target | '*'): void;
+    stopAllSounds(target: Target | "*"): void;
     dispose(): void;
   }
 
   interface SoundToDecode {
     data: {
       buffer: ArrayBuffer;
-    }
+    };
   }
 }
 
@@ -182,12 +188,16 @@ declare class AudioEngine {
 
   decodeSound(sound: AudioEngine.SoundToDecode): Promise<string>;
 
-  decodeSoundPlayer(sound: AudioEngine.SoundToDecode): Promise<AudioEngine.SoundPlayer>;
+  decodeSoundPlayer(
+    sound: AudioEngine.SoundToDecode
+  ): Promise<AudioEngine.SoundPlayer>;
 
   /**
    * Returns a tuple of [sound id, buffer]
    */
-  _decodeSound(sound: AudioEngine.SoundToDecode): Promise<[string, AudioBuffer]>;
+  _decodeSound(
+    sound: AudioEngine.SoundToDecode
+  ): Promise<[string, AudioBuffer]>;
 
   createEffectChain(): AudioEngine.EffectChain;
 

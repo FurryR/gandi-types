@@ -10,6 +10,69 @@
 /// <reference path="./scratch-svg-renderer.d.ts" />
 
 declare namespace VM {
+  // Gandi
+  interface LogSystem {
+    log(message?: unknown, ...optionalParams: unknown[]): void;
+    info(message?: unknown, ...optionalParams: unknown[]): void;
+    warn(message?: unknown, ...optionalParams: unknown[]): void;
+    error(message?: unknown, ...optionalParams: unknown[]): void;
+    clear(): void;
+    show(): void;
+    hide(): void;
+    setColor(color: string): void;
+  }
+
+  type L10n = "en" | "zh-cn" | string;
+
+  interface Extension {
+    info: {
+      name: string;
+      extensionId: string;
+      collaborator?: string;
+      connectingMessage?: string;
+      connectionIconURL?: string;
+      connectionSmallIconURL?: string;
+      collaboratorList?: Array<{
+        collaborator: string;
+        collaboratorURL?: string;
+      }>;
+      collaboratorURL?: string;
+      disabled?: boolean;
+      doc?: string;
+      featured: boolean;
+      iconURL?: string;
+      insetIconURL?: string;
+    };
+    l10n?: {
+      [key in L10n]: Record<string, string>;
+    };
+  }
+
+  interface ExtensionBlockMetadata {
+    json: Record<string, unknown>;
+    xml: string;
+  }
+
+  interface FrameState {
+    blocks: string[];
+    collapsed: boolean;
+    color: string;
+    height: number;
+    id: string;
+    locked: boolean;
+    title: string;
+    width: number;
+    x: number;
+    y: number;
+  }
+
+  interface Frames {
+    runtime: Runtime;
+    createFrame(e: FrameState): boolean;
+    deleteFrame(id: string): boolean;
+    toXML(id: string): string;
+  }
+
   // TW
   interface RuntimeOptions {
     maxClones: number;
@@ -38,7 +101,10 @@ declare namespace VM {
   }
   interface AddonBlockOptions {
     procedureCode: string;
-    callback(args: Record<string, string | number | boolean>, util: BlockUtility): void;
+    callback(
+      args: Record<string, string | number | boolean>,
+      util: BlockUtility
+    ): void;
     arguments: string[];
     hidden?: boolean;
   }
@@ -47,7 +113,7 @@ declare namespace VM {
   }
   type Awaitable<T> = T | Promise<T>;
   interface SecurityManager {
-    getSandboxMode(url: string): Awaitable<'worker' | 'iframe' | 'unsandboxed'>;
+    getSandboxMode(url: string): Awaitable<"worker" | "iframe" | "unsandboxed">;
     canLoadExtensionFromProject(url: string): Awaitable<boolean>;
     canFetch(url: string): Awaitable<boolean>;
     canOpenWindow(url: string): Awaitable<boolean>;
@@ -66,27 +132,35 @@ declare namespace VM {
       system: boolean;
       family: string;
       fallback: string;
-      asset?: ScratchStorage.Asset
+      asset?: ScratchStorage.Asset;
     }>;
     isValidFamily(family: string): boolean;
     hasFont(family: string): boolean;
     getSafeName(family: string): string;
     changed(): void;
     addSystemFont(family: string, fallback: string): void;
-    addCustomFont(family: string, fallback: string, asset: ScratchStorage.Asset): void;
+    addCustomFont(
+      family: string,
+      fallback: string,
+      asset: ScratchStorage.Asset
+    ): void;
     getFonts(): Array<{
       system: boolean;
       name: string;
       family: string;
-      data: Uint8Array | null,
-      format: string | null
+      data: Uint8Array | null;
+      format: string | null;
     }>;
     deleteFont(index: number): void;
     clear(): void;
     updateRenderer(): void;
     serializeJSON(): unknown;
     serializeAssets(): ScratchStorage.Asset[];
-    deserialize(json: unknown, zip?: JSZip, keepExisting?: boolean): Promise<void>;
+    deserialize(
+      json: unknown,
+      zip?: JSZip,
+      keepExisting?: boolean
+    ): Promise<void>;
   }
 
   /**
@@ -131,7 +205,7 @@ declare namespace VM {
   }
 
   interface Costume extends BaseAsset {
-    dataFormat: 'svg' | 'png' | 'jpg';
+    dataFormat: "svg" | "png" | "jpg";
     bitmapResolution: number;
     rotationCenterX: number;
     rotationCenterY: number;
@@ -140,14 +214,15 @@ declare namespace VM {
   }
 
   interface Sound extends BaseAsset {
-    dataFormat: 'mp3' | 'wav';
-    format: ''; // TODO
+    dataFormat: "mp3" | "wav";
+    format: ""; // TODO
     rate: number;
     sampleCount: number;
     soundId: string;
   }
 
   interface Sprite {
+    frames: Frames;
     runtime: Runtime;
     blocks: Blocks;
     name: string;
@@ -155,6 +230,9 @@ declare namespace VM {
     sounds: Sound[];
     clones: RenderedTarget[];
     soundBank: AudioEngine.SoundBank | null;
+
+    createClone(optLayerGroup: string): Target;
+    removeClone(clone: Target): void;
   }
 
   interface Field {
@@ -170,7 +248,7 @@ declare namespace VM {
   }
 
   interface BaseMutation {
-    tagName: 'mutation';
+    tagName: "mutation";
     children: [];
   }
 
@@ -268,24 +346,24 @@ declare namespace VM {
   }
 
   const enum VariableType {
-    Scalar = '',
-    List = 'list',
-    Broadcast = 'broadcast_msg'
+    Scalar = "",
+    List = "list",
+    Broadcast = "broadcast_msg",
   }
 
   interface ScalarVariable extends BaseVariable {
-    type: '';
+    type: "";
     value: ScratchCompatibleValue;
   }
 
   interface ListVariable extends BaseVariable {
-    type: 'list';
+    type: "list";
     value: ScratchList;
     _monitorUpToDate?: boolean;
   }
 
   interface BroadcastVariable extends BaseVariable {
-    type: 'broadcast_msg';
+    type: "broadcast_msg";
 
     /**
      * Always the same as name.
@@ -318,15 +396,15 @@ declare namespace VM {
   }
 
   const enum TextToSpeechVoice {
-    Alto = 'ALTO',
-    Tenor = 'TENOR',
-    Squeak = 'SQUEAK',
-    Giant = 'GIANT',
-    Kitten = 'KITTEN'
+    Alto = "ALTO",
+    Tenor = "TENOR",
+    Squeak = "SQUEAK",
+    Giant = "GIANT",
+    Kitten = "KITTEN",
   }
 
   interface CustomState {
-    'Scratch.looks': {
+    "Scratch.looks": {
       drawableId: null | number;
       skinId: null | number;
       onSpriteRight: boolean;
@@ -334,18 +412,18 @@ declare namespace VM {
       type: RenderWebGL.TextBubbleType;
     };
 
-    'Scratch.sound': {
+    "Scratch.sound": {
       effects: {
         pitch: number;
         pan: number;
       };
     };
 
-    'Scratch.music': {
+    "Scratch.music": {
       currentInstrument: number;
     };
 
-    'Scratch.pen': {
+    "Scratch.pen": {
       penDown: boolean;
       color: number;
       saturation: number;
@@ -355,11 +433,11 @@ declare namespace VM {
       penAttributes: RenderWebGL.PenAttributes;
     };
 
-    'Scratch.text2speech': {
+    "Scratch.text2speech": {
       voiceId: TextToSpeechVoice;
     };
 
-    'Scratch.videoSensing': {
+    "Scratch.videoSensing": {
       motionFrameNumber: number;
       motionAmount: number;
       motionDirection: number;
@@ -377,7 +455,16 @@ declare namespace VM {
 
     comments: Record<string, Comment>;
 
-    createComment(id: string, blockId: string, text: string, x: number, y: number, width: number, height: number, minimized?: boolean): void;
+    createComment(
+      id: string,
+      blockId: string,
+      text: string,
+      x: number,
+      y: number,
+      width: number,
+      height: number,
+      minimized?: boolean
+    ): void;
 
     /**
      * Called by runtime when the green flag is pressed.
@@ -400,9 +487,21 @@ declare namespace VM {
     lookupVariableById(id: string): Variable | undefined;
 
     lookupVariableByNameAndType(name: string): ScalarVariable | undefined;
-    lookupVariableByNameAndType(name: string, type: '', skipStage?: boolean): ScalarVariable | undefined;
-    lookupVariableByNameAndType(name: string, type: 'list', skipStage?: boolean): ListVariable | undefined;
-    lookupVariableByNameAndType(name: string, type: 'broadcast_msg', skipStage?: boolean): BroadcastVariable | undefined;
+    lookupVariableByNameAndType(
+      name: string,
+      type: "",
+      skipStage?: boolean
+    ): ScalarVariable | undefined;
+    lookupVariableByNameAndType(
+      name: string,
+      type: "list",
+      skipStage?: boolean
+    ): ListVariable | undefined;
+    lookupVariableByNameAndType(
+      name: string,
+      type: "broadcast_msg",
+      skipStage?: boolean
+    ): BroadcastVariable | undefined;
 
     lookupOrCreateList(id: string, name: string): ListVariable;
 
@@ -410,16 +509,26 @@ declare namespace VM {
      * Create a new variable. If the ID is already used, silently does nothing.
      * isCloud is ignored if the sprite is not the stage or if the cloud variable limit has been reached.
      */
-    createVariable(id: string, name: string, type: VariableType, isCloud?: boolean): void;
+    createVariable(
+      id: string,
+      name: string,
+      type: VariableType,
+      isCloud?: boolean
+    ): void;
 
     _customState: Partial<CustomState>;
-    getCustomState<T extends keyof CustomState>(name: T): CustomState[T] | undefined;
-    setCustomState<T extends keyof CustomState>(name: T, value: CustomState[T]): void;
+    getCustomState<T extends keyof CustomState>(
+      name: T
+    ): CustomState[T] | undefined;
+    setCustomState<T extends keyof CustomState>(
+      name: T,
+      value: CustomState[T]
+    ): void;
 
     /**
      * Mirrors custom state.
      */
-    soundEffects?: CustomState['Scratch.sound']['effects'];
+    soundEffects?: CustomState["Scratch.sound"]["effects"];
 
     postSpriteInfo(spriteInfo: PostedSpriteInfo): void;
 
@@ -427,9 +536,9 @@ declare namespace VM {
   }
 
   const enum RotationStyle {
-    AllAround = 'all-around',
-    LeftRight = 'left-right',
-    None = "don't rotate"
+    AllAround = "all-around",
+    LeftRight = "left-right",
+    None = "don't rotate",
   }
 
   interface RenderedTargetEventMap {
@@ -440,13 +549,13 @@ declare namespace VM {
 
   const enum Effect {
     // TODO: document ranges
-    Color = 'color',
-    Fisheye = 'fisheye',
-    Whirl = 'whirl',
-    Pixelate = 'pixelate',
-    Mosaic = 'mosaic',
-    Brightness = 'brightness',
-    Ghost = 'ghost'
+    Color = "color",
+    Fisheye = "fisheye",
+    Whirl = "whirl",
+    Pixelate = "pixelate",
+    Mosaic = "mosaic",
+    Brightness = "brightness",
+    Ghost = "ghost",
   }
 
   /**
@@ -460,6 +569,11 @@ declare namespace VM {
   }
 
   interface RenderedTarget extends BaseTarget {
+    // Gandi
+    locked?: boolean;
+    getCostumeById(id: string): Costume;
+    deleteVariable(id: string, isRemoteOperation?: boolean): void;
+
     sprite: Sprite;
 
     renderer: IfRenderer<RenderWebGL, undefined>;
@@ -485,7 +599,11 @@ declare namespace VM {
      */
     setXY(x: number, y: number, force?: boolean): void;
 
-    keepInFence(newX: number, newY: number, fence?: SimpleRectangle): [number, number];
+    keepInFence(
+      newX: number,
+      newY: number,
+      fence?: SimpleRectangle
+    ): [number, number];
 
     /**
      * Direction in degrees. Defaults to 90 (right). Can be from -179 to 180.
@@ -609,7 +727,7 @@ declare namespace VM {
 
     clearEffects(): void;
 
-    isTouchingObject(object: '_mouse_' | '_edge_' | string): boolean;
+    isTouchingObject(object: "_mouse_" | "_edge_" | string): boolean;
 
     isTouchingPoint(x: number, y: number): boolean;
 
@@ -626,7 +744,10 @@ declare namespace VM {
      * @param rgb RGB channels from [0-255]
      * @param mask RGB channels from [0-255]
      */
-    colorIsTouchingColor(rgb: [number, number, number], mask: [number, number, number]): boolean;
+    colorIsTouchingColor(
+      rgb: [number, number, number],
+      mask: [number, number, number]
+    ): boolean;
 
     getLayerOrder(): IfRenderer<number, null>;
 
@@ -663,7 +784,6 @@ declare namespace VM {
     tempo: number;
 
     videoTransparency: number;
-
 
     /**
      * Create a clone of this sprite if the clone limit has not been reached.
@@ -713,7 +833,7 @@ declare namespace VM {
     _nowObj: {
       now(): number;
     };
-    nowObj: BlockUtility['_nowObj'],
+    nowObj: BlockUtility["_nowObj"];
     target: Target;
     runtime: Runtime;
     stackFrame: StackFrame;
@@ -759,8 +879,12 @@ declare namespace VM {
      * Use instead of runtime.startHats inside blocks.
      * @see {Runtime.startHats}
      */
-    startHats: Runtime['startHats'];
-    ioQuery<Device extends keyof IODevices>(device: Device, func: keyof IODevices[Device], args: unknown[]): unknown;
+    startHats: Runtime["startHats"];
+    ioQuery<Device extends keyof IODevices>(
+      device: Device,
+      func: keyof IODevices[Device],
+      args: unknown[]
+    ): unknown;
   }
 
   const enum ThreadStatus {
@@ -768,7 +892,7 @@ declare namespace VM {
     STATUS_PROMISE_WAIT = 1,
     STATUS_YIELD = 2,
     STATUS_YIELD_TICK = 3,
-    STATUS_DONE = 4
+    STATUS_DONE = 4,
   }
 
   interface Thread {
@@ -846,12 +970,93 @@ declare namespace VM {
   }
 
   interface ExtensionManager {
+    // Gandi
+    asyncExtensionsLoadedCallbacks: Array<(...args: unknown[]) => unknown>;
+    loadingAsyncExtensions: number;
+    nextExtensionWorker: number;
+    pendingExtensions: Array<{
+      extensionURL: string;
+      resolve: (...args: unknown[]) => void;
+      reject: (...args: unknown[]) => void;
+    }>;
+    pendingWorkers: Array<{
+      extensionURL: string;
+      resolve: (...args: unknown[]) => void;
+      reject: (...args: unknown[]) => void;
+    }>;
+    showCompatibilityWarning: boolean;
+    workerMode: string;
+    _customExtensionInfo: Record<string, Extension>;
+    _loadedExtensions: Map<string, string>;
+    _officialExtensionInfo: Record<string, Extension>;
+    addCustomExtensionInfo(obj: unknown, url: string): void;
+    addOfficialExtensionInfo(obj: unknown): void;
+    allAsyncExtensionsLoaded(): Promise<unknown>;
+    allocateWorker(): [number, string];
+    clearLoadedExtensions(): void;
+    createExtensionWorker(): Promise<unknown>;
+    deleteExtensionById(extensionId: string): void;
+    disposeExtensionServices(): void;
+    getExtensionInfoById(extensionId: string): Extension | undefined;
+    getExternalExtensionConstructor(extensionId: string): Promise<unknown>;
+    getLoadedExtensionURLs(): Array<Record<string, string>>;
+    getReplaceableExtensionInfo(): Extension[];
+    injectExtension(extensionId: string, extension: Extension): void;
+    isBuiltinExtension(extensionId: string): boolean;
+    isExtensionIdReserved(extensionId: string): boolean;
+    isExternalExtension(extensionId: string): boolean;
+    isValidExtensionURL(extensionURL: string): boolean;
+    loadExtensionURLInWorker(extensionURL: string): Promise<unknown>;
+    loadExternalExtensionById(
+      extensionId: string,
+      shouldReplace?: boolean
+    ): Promise<unknown> | undefined;
+    loadExternalExtensionToLibrary(
+      url: string,
+      shouldReplace?: boolean | undefined,
+      disallowIIFERegister?: boolean | undefined
+    ): Promise<{
+      onlyAdded: string[];
+      addedAndLoaded: string[];
+    }>;
+    onWorkerInit(id: string, e: unknown): void;
+    registerExtension(
+      extensionId: string,
+      extension: Extension,
+      shouldReplace?: boolean
+    ): string | undefined;
+    registerExtensionService(serviceName: string): void;
+    registerExtensionServiceSync(serviceName: string): void;
+    replaceExtensionWithId(newId: string, oldId: string): void;
+    saveWildExtensionsURL(id: string, url: string): void;
+    setLoadedExtension(extensionId: string, value: Extension): void;
+    updateExternalExtensionConstructor(
+      extensionId: string,
+      func: unknown
+    ): void;
+    _getExtensionMenuItems(
+      extensionObject: object,
+      menuItemFunctionName: string
+    ): unknown[];
+    _prepareBlockInfo(
+      serviceName: string,
+      blockInfo: VM.ExtensionBlockMetadata
+    ): ExtensionBlockMetadata;
+    _prepareExtensionInfo(serviceName: string, extensionInfo: unknown): unknown;
+    _prepareMenuInfo(
+      serviceName: string,
+      menus: Array<unknown>
+    ): Array<unknown>;
+    _registerExtensionInfo(serviceName: string, extensionInfo: unknown): void;
+    _registerInternalExtension(extensionObject: unknown): string;
+    _sanitizeID(text: string): string;
+
     // TW
     securityManager: SecurityManager;
 
     runtime: Runtime;
 
-    refreshBlocks(): Promise<void[]>;
+    refreshBlocks(targetServiceName?: string): Promise<void[]>;
 
     isExtensionLoaded(extensionID: string): boolean;
 
@@ -864,7 +1069,10 @@ declare namespace VM {
     /**
      * Load a remote extension. Does not work on scratch.mit.edu.
      */
-    loadExtensionURL(extensionID: string): Promise<number>;
+    loadExtensionURL(
+      extensionID: string,
+      shouldReplace?: boolean
+    ): Promise<number>;
   }
 
   /**
@@ -1033,27 +1241,37 @@ declare namespace VM {
     INTERPOLATION_CHANGED: [boolean];
     STAGE_SIZE_CHANGED: [number, number];
     COMPILE_ERROR: [Target, unknown];
-    
-    SCRIPT_GLOW_ON: [{
-      id: string;
-    }];
 
-    SCRIPT_GLOW_OFF: [{
-      id: string;
-    }];
+    SCRIPT_GLOW_ON: [
+      {
+        id: string;
+      }
+    ];
 
-    BLOCK_GLOW_ON: [{
-      id: string;
-    }];
+    SCRIPT_GLOW_OFF: [
+      {
+        id: string;
+      }
+    ];
 
-    BLOCK_GLOW_OFF: [{
-      id: string
-    }];
+    BLOCK_GLOW_ON: [
+      {
+        id: string;
+      }
+    ];
 
-    PROJECT_START: [{
-      id: string;
-      value: string;
-    }];
+    BLOCK_GLOW_OFF: [
+      {
+        id: string;
+      }
+    ];
+
+    PROJECT_START: [
+      {
+        id: string;
+        value: string;
+      }
+    ];
 
     PROJECT_RUN_START: [];
 
@@ -1061,10 +1279,12 @@ declare namespace VM {
 
     PROJECT_CHANGED: [];
 
-    VISUAL_REPORT: [{
-      id: string;
-      value: string;
-    }];
+    VISUAL_REPORT: [
+      {
+        id: string;
+        value: string;
+      }
+    ];
 
     MONITORS_UPDATE: [OrderedMap];
 
@@ -1082,10 +1302,12 @@ declare namespace VM {
 
     EXTENSION_ADDED: [ExtensionInfo];
 
-    EXTENSION_FIELD_ADDED: [{
-      name: string;
-      implementation: unknown;
-    }];
+    EXTENSION_FIELD_ADDED: [
+      {
+        name: string;
+        implementation: unknown;
+      }
+    ];
 
     BLOCKSINFO_UPDATE: [ExtensionInfo];
 
@@ -1099,15 +1321,19 @@ declare namespace VM {
 
     PERIPHERAL_DISCONNECTED: [];
 
-    PERIPHERAL_REQUEST_ERROR: [{
-      message: string;
-      extensionId: string;
-    }];
+    PERIPHERAL_REQUEST_ERROR: [
+      {
+        message: string;
+        extensionId: string;
+      }
+    ];
 
-    PERIPHERAL_CONNECTION_LOST_ERROR: [{
-      message: string;
-      extensionId: string;
-    }];
+    PERIPHERAL_CONNECTION_LOST_ERROR: [
+      {
+        message: string;
+        extensionId: string;
+      }
+    ];
 
     PERIPHERAL_SCAN_TIMEOUT: [];
 
@@ -1162,7 +1388,7 @@ declare namespace VM {
 
     targetWasRemoved: [Target];
 
-    SAY: [Target, 'say' | 'think', string];
+    SAY: [Target, "say" | "think", string];
 
     QUESTION: [string | null];
 
@@ -1170,6 +1396,37 @@ declare namespace VM {
   }
 
   interface Runtime extends EventEmitter<RuntimeEventMap> {
+    // Gandi
+    ccwAPI: unknown; // TODO: implement ccwAPI
+    gandi: {
+      assets: Array<unknown>;
+      configs: Record<string, unknown>;
+      dynamicMenuItems: Record<string, unknown>;
+      runtime: Runtime;
+      spine: Record<
+        string,
+        {
+          atlas: string;
+          json: string;
+        }
+      >;
+      wildExtensions: Record<
+        string,
+        {
+          id: string;
+          url: string;
+        }
+      >;
+      _supportedAssetTypes: Array<{
+        contentType: string;
+        immutable: boolean;
+        name: string;
+        runtimeFormat: string;
+      }>;
+    };
+    isLoadProjectAssetsNonBlocking: boolean;
+    logSystem: LogSystem;
+    allAssetsIsUploading?: boolean;
     // TW
     threadMap: Map<string, Thread>;
     frameLoop: FrameLoop;
@@ -1260,7 +1517,9 @@ declare namespace VM {
 
     v2BitmapAdapter?: ScratchSVGRenderer.BitmapAdapter;
 
-    attachV2BitmapAdapter(bitmapAdapter: ScratchSVGRenderer.BitmapAdapter): void;
+    attachV2BitmapAdapter(
+      bitmapAdapter: ScratchSVGRenderer.BitmapAdapter
+    ): void;
 
     storage: IfGui<GUIScratchStorage, ScratchStorage>;
 
@@ -1318,10 +1577,14 @@ declare namespace VM {
 
     threads: Thread[];
 
-    _pushThread(topBlockId: string, target: Target, options?: {
-      stackClick?: boolean;
-      updateMonitor?: boolean;
-    }): Thread;
+    _pushThread(
+      topBlockId: string,
+      target: Target,
+      options?: {
+        stackClick?: boolean;
+        updateMonitor?: boolean;
+      }
+    ): Thread;
 
     _stopThread(thread: Thread): void;
 
@@ -1343,16 +1606,30 @@ declare namespace VM {
 
     _getMonitorThreadCount(threads: Thread[]): number;
 
-    startHats(opcode: string, matchFields?: Record<string, unknown>, target?: Target): Thread[];
+    startHats(
+      opcode: string,
+      matchFields?: Record<string, unknown>,
+      target?: Target
+    ): Thread[];
 
-    toggleScript(topBlockId: string, options?: {
-      target?: string;
-      stackClick?: boolean;
-    }): void;
+    toggleScript(
+      topBlockId: string,
+      options?: {
+        target?: string;
+        stackClick?: boolean;
+      }
+    ): void;
 
-    allScriptsDo(callback: (blockId: string, target: Target) => void, target?: Target): void;
+    allScriptsDo(
+      callback: (blockId: string, target: Target) => void,
+      target?: Target
+    ): void;
 
-    allScriptsByOpcodeDo(opcode: string, callback: (blockId: string, target: Target) => void, target?: Target): void;
+    allScriptsByOpcodeDo(
+      opcode: string,
+      callback: (blockId: string, target: Target) => void,
+      target?: Target
+    ): void;
 
     sequencer: Sequencer;
 
@@ -1366,10 +1643,12 @@ declare namespace VM {
 
     getOpcodeFunction(opcode: string): Function;
 
-    getLabelForOpcode(opcode: string): {
-      category: 'extension';
-      label: string;
-    } | undefined;
+    getLabelForOpcode(opcode: string):
+      | {
+          category: "extension";
+          label: string;
+        }
+      | undefined;
 
     getBlocksXML(target?: Target): Array<{
       id: string;
@@ -1440,10 +1719,25 @@ declare namespace VM {
     removeCloudVariable(): void;
 
     createNewGlobalVariable(variableName: string): ScalarVariable;
-    createNewGlobalVariable(variableName: string, variableId: string): ScalarVariable;
-    createNewGlobalVariable(variableName: string, variableId: string, type: ''): ScalarVariable;
-    createNewGlobalVariable(variableName: string, variableId: string, type: 'list'): ListVariable;
-    createNewGlobalVariable(variableName: string, variableId: string, type: 'broadcast_msg'): BroadcastVariable;
+    createNewGlobalVariable(
+      variableName: string,
+      variableId: string
+    ): ScalarVariable;
+    createNewGlobalVariable(
+      variableName: string,
+      variableId: string,
+      type: ""
+    ): ScalarVariable;
+    createNewGlobalVariable(
+      variableName: string,
+      variableId: string,
+      type: "list"
+    ): ListVariable;
+    createNewGlobalVariable(
+      variableName: string,
+      variableId: string,
+      type: "broadcast_msg"
+    ): BroadcastVariable;
 
     getAllVarNamesOfType(variableType: VariableType): string[];
 
@@ -1487,27 +1781,35 @@ declare namespace VM {
 
     TURBO_MODE_OFF: [];
 
-    targetsUpdate: [{
-      targetList: SerializedTarget[];
-      editingTarget: string | null;
-    }];
+    targetsUpdate: [
+      {
+        targetList: SerializedTarget[];
+        editingTarget: string | null;
+      }
+    ];
 
-    workspaceUpdate: [{
-      xml: string;
-    }];
+    workspaceUpdate: [
+      {
+        xml: string;
+      }
+    ];
 
-    playgroundData: [{
-      blocks: Blocks;
-      // Stringified JSON of Thread[]
-      thread: string;
-    }];
+    playgroundData: [
+      {
+        blocks: Blocks;
+        // Stringified JSON of Thread[]
+        thread: string;
+      }
+    ];
   }
 }
 
 declare class VM extends EventEmitter<VM.VirtualMachineEventMap> {
   // TW
-  saveProjectSb3Stream(): JSZip.StreamHelper<'arraybuffer'>;
-  saveProjectSb3Stream<T extends keyof JSZip.OutputTypes>(type: T): JSZip.StreamHelper<T>;
+  saveProjectSb3Stream(): JSZip.StreamHelper<"arraybuffer">;
+  saveProjectSb3Stream<T extends keyof JSZip.OutputTypes>(
+    type: T
+  ): JSZip.StreamHelper<T>;
   saveProjectSb3DontZip(): Record<string, Uint8Array>;
   stop(): void;
   setFramerate(framerate: number): void;
@@ -1526,11 +1828,11 @@ declare class VM extends EventEmitter<VM.VirtualMachineEventMap> {
   securityManager: VM.SecurityManager;
   exports: {
     Sprite: {
-      new(blocks: VM.Blocks | null, runtime: VM.Runtime): VM.Sprite;
+      new (blocks: VM.Blocks | null, runtime: VM.Runtime): VM.Sprite;
     };
     RenderedTarget: {
-      new(sprite: VM.Sprite, runtime: VM.Runtime): VM.RenderedTarget;
-    }
+      new (sprite: VM.Sprite, runtime: VM.Runtime): VM.RenderedTarget;
+    };
   };
 
   constructor();
@@ -1609,7 +1911,9 @@ declare class VM extends EventEmitter<VM.VirtualMachineEventMap> {
    * Load a project.
    * @param input Compressed sb, sb2, sb3 or sb2 project.json or sb3 project.json.
    */
-  loadProject(input: ArrayBufferView | ArrayBuffer | string | object): Promise<void>;
+  loadProject(
+    input: ArrayBufferView | ArrayBuffer | string | object
+  ): Promise<void>;
 
   /**
    * Load a project usings its ID from scratch.mit.edu.
@@ -1618,19 +1922,27 @@ declare class VM extends EventEmitter<VM.VirtualMachineEventMap> {
 
   deserializeProject(json: object, zip?: JSZip): Promise<void>;
 
-  installTargets(targets: VM.Target[], extensions: VM.ImportedExtensionsInfo, wholeProject: boolean): Promise<void>;
+  installTargets(
+    targets: VM.Target[],
+    extensions: VM.ImportedExtensionsInfo,
+    wholeProject: boolean
+  ): Promise<void>;
 
   /**
    * @deprecated
    * @see {loadProject}
    */
-  fromJSON(input: ArrayBufferView | ArrayBuffer | string | object): Promise<void>;
+  fromJSON(
+    input: ArrayBufferView | ArrayBuffer | string | object
+  ): Promise<void>;
 
   /**
    * the project to a compressed sb3 file.
    */
   // TW
-  saveProjectSb3<T extends keyof JSZip.OutputTypes>(type: T): Promise<JSZip.OutputTypes[T]>;
+  saveProjectSb3<T extends keyof JSZip.OutputTypes>(
+    type: T
+  ): Promise<JSZip.OutputTypes[T]>;
   saveProjectSb3(): Promise<Blob>;
 
   toJSON(targetId?: string): string;
@@ -1652,9 +1964,16 @@ declare class VM extends EventEmitter<VM.VirtualMachineEventMap> {
    * Updates the value of a variable.
    * Returns true if the target and variable were successfully found and updated, otherwise null.
    */
-  setVariableValue(targetId: string, variableId: string, value: VM.VariableValue): boolean;
+  setVariableValue(
+    targetId: string,
+    variableId: string,
+    value: VM.VariableValue
+  ): boolean;
 
-  getVariableValue(targetId: string, variableId: string): VM.VariableValue | null;
+  getVariableValue(
+    targetId: string,
+    variableId: string
+  ): VM.VariableValue | null;
 
   assets: ScratchStorage.Asset[];
 
@@ -1678,9 +1997,16 @@ declare class VM extends EventEmitter<VM.VirtualMachineEventMap> {
   /**
    * Loads a sprite from a compressed .sprite2 or .sprite3 or JSON.
    */
-  addSprite(data: ArrayBufferView | ArrayBuffer | string | object): Promise<void>;
+  addSprite(
+    data: ArrayBufferView | ArrayBuffer | string | object
+  ): Promise<void>;
 
-  addCostume(md5ext: string, costume?: VM.Costume, targetId?: string, version?: 2): Promise<void>;
+  addCostume(
+    md5ext: string,
+    costume?: VM.Costume,
+    targetId?: string,
+    version?: 2
+  ): Promise<void>;
 
   addCostumeFromLibrary(md5ext: string, costume: VM.Costume): Promise<void>;
 
@@ -1694,9 +2020,20 @@ declare class VM extends EventEmitter<VM.VirtualMachineEventMap> {
 
   duplicateSound(soundIndex: number): Promise<void>;
 
-  updateSvg(costumeIndex: number, svg: string, rotationCenterX: number, rotationCenterY: number): void;
+  updateSvg(
+    costumeIndex: number,
+    svg: string,
+    rotationCenterX: number,
+    rotationCenterY: number
+  ): void;
 
-  updateBitmap(costumeIndex: number, bitmap: ImageData, rotationCenterX: number, rotationCenterY: number, bitmapResolution: number): void;
+  updateBitmap(
+    costumeIndex: number,
+    bitmap: ImageData,
+    rotationCenterX: number,
+    rotationCenterY: number,
+    bitmapResolution: number
+  ): void;
 
   /**
    * Update a sound.
@@ -1704,11 +2041,19 @@ declare class VM extends EventEmitter<VM.VirtualMachineEventMap> {
    * @param buffer The new audio data
    * @param encodedWAV The data of an encoded WAV. If not provided, the new sound won't be saved if the project is exported.
    */
-  updateSoundBuffer(soundIndex: number, buffer: AudioBuffer, encodedWAV?: ArrayBuffer): void;
+  updateSoundBuffer(
+    soundIndex: number,
+    buffer: AudioBuffer,
+    encodedWAV?: ArrayBuffer
+  ): void;
 
   reorderTarget(targetId: string, newIndex: number): boolean;
 
-  reorderCostume(targetId: string, costumeIndex: number, newIndex: number): boolean;
+  reorderCostume(
+    targetId: string,
+    costumeIndex: number,
+    newIndex: number
+  ): boolean;
 
   reorderSound(targetId: string, soundIndex: number, newIndex: number): boolean;
 
@@ -1739,7 +2084,11 @@ declare class VM extends EventEmitter<VM.VirtualMachineEventMap> {
   /**
    * Returns a promise that resolves when all required extensions have been imported.
    */
-  shareBlocksToTarget(blocks: VM.Block[], targetId: string, fromTargetId?: string): Promise<void>;
+  shareBlocksToTarget(
+    blocks: VM.Block[],
+    targetId: string,
+    fromTargetId?: string
+  ): Promise<void>;
 
   /**
    * Share a costume from the editing target to another target.
@@ -1760,8 +2109,8 @@ declare class VM extends EventEmitter<VM.VirtualMachineEventMap> {
   emitTargetsUpdate(shouldTriggerProjectChange?: boolean): void;
 
   /**
-  * Emit a workspaceUpdate event.
-  */
+   * Emit a workspaceUpdate event.
+   */
   emitWorkspaceUpdate(): void;
 
   /**
@@ -1779,12 +2128,12 @@ declare class VM extends EventEmitter<VM.VirtualMachineEventMap> {
 
   stopDrag(targetId: string): void;
 
-  postIOData(device: 'cloud', data: VM.CloudData): void;
-  postIOData(device: 'keyboard', data: VM.KeyboardData): void;
-  postIOData(device: 'mouse', data: VM.MouseData): void;
-  postIOData(device: 'mouseWheel', data: VM.MouseWheelData): void;
-  postIOData(device: 'userData', data: VM.UserDataData): void;
-  postIOData(device: 'video', data: VM.VideoData): void;
+  postIOData(device: "cloud", data: VM.CloudData): void;
+  postIOData(device: "keyboard", data: VM.KeyboardData): void;
+  postIOData(device: "mouse", data: VM.MouseData): void;
+  postIOData(device: "mouseWheel", data: VM.MouseWheelData): void;
+  postIOData(device: "userData", data: VM.UserDataData): void;
+  postIOData(device: "video", data: VM.VideoData): void;
 
   setVideoProvider(videoProvider: VM.VideoProvider): void;
 
