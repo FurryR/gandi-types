@@ -293,7 +293,37 @@ declare namespace VM {
     topLevel: boolean;
     inputs: Record<string, Input>;
     fields: Record<string, Field>;
-    mutation: null | ProcedureCallMutation | ProcedurePrototypeMutation;
+    mutation:
+      | null
+      | ProcedureCallMutation
+      | ProcedurePrototypeMutation
+      | {
+          argumentdefaults?: string;
+          argumentids?: string;
+          argumentnames?: string;
+          children: unknown[];
+          hasnext?: string;
+          isglobal?: string;
+          isreporter?: string;
+          proccode?: string;
+          tagName: string;
+          targetid?: string;
+          type?: string;
+          warp?: string;
+          blockInfo?: {
+            arguments?: Record<
+              string,
+              {
+                type: string;
+                defaultValue: string;
+              }
+            >;
+            blockType?: string;
+            isDynamic?: boolean;
+            text: string;
+            opcode: string;
+          };
+        };
   }
 
   interface Blocks {
